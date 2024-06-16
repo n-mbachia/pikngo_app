@@ -1,0 +1,48 @@
+<!-- my_flask_app/app/templates/dashboard.html -->
+<!-- my_flask_app/app/templates/admin_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Admin Dashboard</h1>
+
+    <!-- Display flashed messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}     
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Create Post</h5>
+                    <p class="card-text">Create a new blog post.</p>
+                    <a href="{{ url_for('routes.create_post') }}" class="btn btn-primary">Go</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Edit Content</h5>
+                    <p class="card-text">Edit existing blog posts.</p>
+                    <a href="{{ url_for('routes.edit_content_list') }}" class="btn btn-primary">Go</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Existing Blogs</h5>
+                    <p class="card-text">View all existing blog posts.</p>
+                    <a href="{{ url_for('routes.earlier_posts') }}" class="btn btn-primary">Go</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

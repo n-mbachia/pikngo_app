@@ -1,0 +1,23 @@
+<!-- my_flask_app/app/templates/index.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="static rounded text-center">
+                <img src="{{ url_for('static', filename='landing_page.jpg') }}" alt="Image Caption" class="rounded img-fluid">
+            </div>
+        </div>
+        <div class="container text-center mt-3">
+            <h1>About Us</h1>
+            <p> Pik & Go is all about experiences and we take pride in ensuring you get the best and that is why we make it best for you with the best ingredients ever</p>
+            <ul>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+{% endblock %}

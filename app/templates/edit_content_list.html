@@ -1,0 +1,16 @@
+<!-- my_flask_app/app/templates/edit_content_list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Edit Content</h1>
+    <ul class="list-group">
+        {% for post in posts %}
+            <li class="list-group-item">
+                <h3>{{ post.title }}</h3>
+                <a href="{{ url_for('routes.edit_content', content_id=post.id) }}" class="btn btn-secondary">Edit</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

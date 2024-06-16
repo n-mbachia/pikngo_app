@@ -1,0 +1,17 @@
+<!-- my_flask_app/app/templates/post.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ post.title }}</h1>
+    {% if post.image_filename %}
+        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post Image" class="img-fluid rounded float-left" style="max-width: 200px; max-height: 350px; margin-right: 20px;">
+    {% endif %}
+    <!-- Display the content of the blog post with safe filter -->
+    {{ post.body | safe }}
+</div>
+<script>
+    //scroll to top JavaScript remains unchanged)
+</script>
+{% endblock %}

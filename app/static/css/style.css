@@ -1,0 +1,109 @@
+/* my_flask_app/app/static/css/style.css */
+
+/* Font-face for BerkshireSwash */
+.berkshire-swash-regular {
+    font-family: "Berkshire Swash", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+ 
+
+/* Body styling */
+body {
+    font-family: 'BerkshireSwash', cursive;
+}
+
+/* Center the .static element */
+.static {
+    margin: 2em auto;
+}
+
+/* Image styling within .static */
+.static img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-style: none;
+}
+
+/* Body styling */
+body {
+    text-align: justify;
+    margin-bottom: 20px; /* Adjust the margin as needed */
+    line-height: 1.5; /* Adjust the line height as needed */
+}
+
+/* Navigation Bar Styling */
+
+/* Sticky Navigation Bar */
+.navbar {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensures the navbar stays on top of other content */
+    background-color: #b2b1b1; /* Optional: Customize the background color */
+    border-bottom: 1px solid #f3d5d5;
+}
+
+.navbar-brand {
+    color: #333333; /* Change color of brand/logo */
+    font-weight: bold; /* Make brand/logo text bold */
+}
+
+.navbar-nav {
+    margin-left: auto; /* Align navbar items to the right */
+}
+
+.nav-link {
+    color: #333333; /* Change color of navigation links */
+    font-weight: bold; /* Make navigation links bold */
+    margin-right: 20px; /* Add spacing between navigation links */
+}
+
+.nav-link:hover {
+    color: #007bff; /* Change color of navigation links on hover */
+}
+
+
+/* Additional styling for the list items */
+.list-unstyled {
+    margin-top: 10px;
+}
+
+/* Additional styling for the layout */
+.post-content {
+    display: flex;
+    align-items: flex-start;
+}
+
+/* Styling for the image container */
+.image-container {
+    margin-right: 20px;
+}
+
+/* Change the font and color for specific elements */
+h1, h2, h3, h4 {
+    font-family: 'BerkshireSwash', cursive;
+    color: rgb(237, 223, 71);
+    text-align: center;
+    padding: 1px;
+}
+
+.body p {
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.container {
+    max-width: 800px; /* Adjust the maximum width as needed */
+    margin: 0 auto; /* Center the container */
+}
+
+/* Define a class for styling the footer */
+footer {
+    font-family: 'BerkshireSwash', cursive;
+    font-size: 16px;
+    color: black;
+}

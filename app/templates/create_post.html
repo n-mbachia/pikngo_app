@@ -1,0 +1,63 @@
+<!-- my_flask_app/app/templates/create_post.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Create New Post</h1>
+    <h2 class="text=centre my-4">New post accepts image uploads from Author</h2>
+
+    <!-- Display flashed messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form for blog post -->
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('routes.create_post') }}"> 
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.title. label }}
+            {{ form.title(class="form-control") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.body.label }}
+            {{ form.body(class="form-control") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.image.label }}
+            {{ form.image(class="form-control-file") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.author.label }}
+            {{ form.author(class="form-control") }}
+        </div>
+
+         <button type="submit" class="btn btn-primary">Submit</button>
+
+        <!-- Include TinyMCE initialization script -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.5.1/tinymce.min.js" integrity="sha512-SJh7xW/9SLzllt0PqjnYlomfUPi7UYF40TXU5m6kVXLFr1hdKe+L8Tqqoi1y9vlsMQBdGC2lZI0d6w04Nn6piQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        
+        <script>
+            tinymce.init({
+                selector: 'textarea#body',  // Update selector to directly target the textarea by ID
+                plugins: 'advlist autolink lists link image charmap print preview anchor',
+                toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+                toolbar_mode: 'floating',
+                tinycomments_mode: 'embedded',
+                tinycomments_author: 'Author name',
+                setup: function (editor) {
+                    editor.on('change', function () {
+                        editor.save();  // Ensure TinyMCE updates the textarea value
+                    });
+                }
+            });
+        </script>
+    </form>
+</div>
+{% endblock %}
