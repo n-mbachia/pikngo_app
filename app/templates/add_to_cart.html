@@ -1,0 +1,26 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<body>
+    <h1>Add to Cart</h1>
+    <form method="POST" action="{{url_for('routes.add_to_cart')} }">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.item_id.label }}<br>
+            {{ form.item_id(size=32) }}<br>
+            {% for error in form.item_id.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.quantity.label }}<br>
+            {{ form.quantity(size=32) }}<br>
+            {% for error in form.quantity.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+</body>
+{% endblock %}

@@ -1,0 +1,26 @@
+<!-- checkout.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Checkout</h1>
+    <div class="row">
+        {% for item in cart_items %}
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" class="card-img-top" alt="{{ item.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.name }}</h5>
+                    <p class="card-text">{{ item.description }}</p>
+                    <p class="card-text">{{ item.price }} KES</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <h3>Total: {{ total }} KES</h3>
+    <form method="POST" action="{{ url_for('routes.checkout') }}">
+        <button type="submit" class="btn btn-primary">Pay with Mpesa</button>
+    </form>
+</div>
+{% endblock %}

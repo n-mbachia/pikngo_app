@@ -1,0 +1,29 @@
+<!-- manage_shop.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Manage Shop Items</h1>
+    <a href="{{ url_for('routes.add_shop_items') }}" class="btn btn-primary my-2">Add Shop Item</a>
+    <div class="row">
+        {% for item in items %}
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" class="card-img-top" alt="{{ item.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.name }}</h5>
+                    <p class="card-text">{{ item.description }}</p>
+                    <p class="card-text">{{ item.price }} KES</p>
+                    <form action="{{ url_for('routes.edit_shop_item', item_id=item.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to edit this item?');">Edit</button>
+                    </form>
+                    <form action="{{ url_for('routes.delete_shop_item', item_id=item.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?');">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

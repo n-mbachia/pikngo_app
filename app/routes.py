@@ -1,13 +1,13 @@
 # my_flask_app/app/routes.py
 
-from flask import Blueprint, render_template, redirect, url_for, request, session, flash, send_file, current_app
+from flask import jsonify, Blueprint, render_template, redirect, url_for, request, session, flash, send_file, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import timedelta
 import os
 from app import db
-from app.models import User, Content
-from app.forms import ContentForm, AdminSignupForm, AdminLoginForm
+from app.models import User, Content, ShopItem
+from app.forms import ContentForm, AdminSignupForm, AdminLoginForm, ShopItemForm, AddToCartForm
 
 # Create a Blueprint object for routes
 bp = Blueprint('routes', __name__)
@@ -22,17 +22,10 @@ def register():
         username = form.username.data
         email = form.email.data
         password = form.password.data
-
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            flash('Email address already exists. Please use a different email.', 'error')
-            return redirect(url_for('routes.register'))
-
         hashed_password = generate_password_hash(password)
         new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
-        db.session.commit()
-
+        db.session.commit()      
         flash('User registered successfully!', 'success')
         return redirect(url_for('routes.admin_login'))
     else:
@@ -121,8 +114,9 @@ def create_post():
 def edit_content_list():
     if not session.get('admin_logged_in'):
         return redirect(url_for('routes.admin_login'))
-    posts = Content.query.all()
-    return render_template('edit_content_list.html', posts=posts)
+    form = ContentForm()
+    contents = Content.query.all()
+    return render_template('edit_content_list.html', form=form, contents=contents)
 
 # Route for editing content
 @bp.route('/admin/edit_content/<int:content_id>', methods=['GET', 'POST'])
@@ -177,7 +171,7 @@ def delete_content(content_id):
     db.session.delete(content)
     db.session.commit()
     flash('Post deleted successfully', 'success')
-    return redirect(url_for('routes.admin_dashboard'))
+    return redirect(url_for('routes.edit_content_list'))
 
 # Route for deleting a post
 @bp.route('/delete_post/<int:post_id>', methods=['POST'])
@@ -197,6 +191,113 @@ def delete_post(post_id):
 def index():
     return render_template('index.html')
 
+# Route to manage shop
+@bp.route('/admin/manage_shop', methods=['GET', 'POST'])
+def manage_shop():
+    items = ShopItem.query.all()
+    return render_template('manage_shop.html', items=items)
+
+# Route to add shop items
+@bp.route('/admin/add_shop_items', methods=['GET', 'POST'])
+def add_shop_items():
+    form = ShopItemForm()
+    if form.validate_on_submit():
+        image_file=form.image.data
+        image_filename = image_file.filename
+        image_file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], image_filename))
+        
+        new_item = ShopItem(
+            name=form.name.data,
+            description=form.description.data,
+            price=form.price.data,
+            image_filename=image_filename
+        )
+        db.session.add(new_item)
+        db.session.commit()
+        flash('Shop item added successfully!', 'success')
+        return redirect(url_for('routes.manage_shop'))
+    return render_template('add_shop_items.html', form=form)
+
+# Route to edit shop items
+@bp.route('/admin/shop/edit/<int:item_id>', methods=['GET', 'POST'])
+def edit_shop_item(item_id):
+    item = ShopItem.query.get_or_404(item_id)
+    form = ShopItemForm(obj=item)
+    if form.validate_on_submit():
+        item.name = form.name.data
+        item.description = form.description.data
+        item.price = form.price.data
+        if form.image.data:
+            image_file = form.image.data
+            filename = secure_filename(image_file.filename)
+            image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            image_file.save(image_path)
+            item.image_filename = filename
+        db.session.commit()
+        flash('Item updated successfully!', 'success')
+        return redirect(url_for('routes.manage_shop'))
+    return render_template('edit_shop_item.html', form=form, item=item)
+
+# Route for deleting shop items
+@bp.route('/admin/delete_shop_item/<int:item_id>', methods=['POST'])
+def delete_shop_item(item_id):
+    item =ShopItem.query.get_or_404(item_id)
+    db.session.delete(item)
+    db.session.commit()
+    flash('Shop item deleted successfully!', 'sucess')
+    return redirect(url_for('routes.manage_shop'))
+
+# Route to display shop to users
+@bp.route('/shop')
+def shop():
+    items= ShopItem.query.all()
+    form = AddToCartForm()
+    return render_template('shop.html', items=items, form=form)
+
+# Route to cart
+@bp.route('/cart')
+def cart():
+    cart_items = session.get('cart', [])
+    return render_template('cart.html', cart_items=cart_items)
+
+# Roue for add items to cart
+@bp.route('/add_to_cart', methods=['GET', 'POST'])
+def add_to_cart():
+    form = AddToCartForm()
+    if form.validate_on_submit():
+        item_id = form.item_id.data
+        quantity = form.quantity.data
+        item = ShopItem.query.get(item_id)
+    
+        if item is None:
+            flash('Item not found', 'danger')
+            return redirect(url_for('routes.shop'))
+        
+        cart_item = {
+            'item': item.to_dict(),
+            'quantity': quantity
+        }
+        
+        flash(f"Added {quantity} of {item.name} to cart!", 'success')
+        
+        # return the cart item as Json response
+        return redirect(url_for('routes.shop'))
+
+    return redirect(url_for('routes.shop'))
+
+# Route to checkout
+@bp.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+    if request.method == 'POST':
+        # Here you would process the payment
+        flash('Payment successful!', 'success')
+        session.pop('cart', None)
+        return redirect(url_for('routes.shop'))
+    cart_items = session.get('cart', [])
+    total = sum(item.price for item in cart_items)
+    return render_template('checkout.html', cart_items=cart_items, total=total)
+
+# Route for PDF menu download
 @bp.route('/menu')
 def download_menu():
     # Assuming your PDF menu file is located in the static folder

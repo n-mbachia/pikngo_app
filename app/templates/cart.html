@@ -1,0 +1,23 @@
+<!-- cart.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">Your Cart</h1>
+    <div class="row">
+        {% for item in cart_items %}
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" class="card-img-top" alt="{{ item.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.name }}</h5>
+                    <p class="card-text">{{ item.description }}</p>
+                    <p class="card-text">{{ item.price }} KES</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('routes.checkout') }}" class="btn btn-success my-4">Proceed to Checkout</a>
+</div>
+{% endblock %}
