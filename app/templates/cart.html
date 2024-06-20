@@ -1,23 +1,57 @@
 <!-- cart.html -->
 {% extends 'base.html' %}
 
+{% block title %}Cart{% endblock %}
+
 {% block content %}
 <div class="container">
     <h1 class="text-center my-4">Your Cart</h1>
-    <div class="row">
-        {% for item in cart_items %}
-        <div class="col-md-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" class="card-img-top" alt="{{ item.name }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ item.name }}</h5>
-                    <p class="card-text">{{ item.description }}</p>
-                    <p class="card-text">{{ item.price }} KES</p>
-                </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             </div>
-        </div>
-        {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="row">
+        {% if cart %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart %}
+                    <tr>
+                        <td>{{ item['name'] }}</td>
+                        <td>{{ item['quantity'] }}</td>
+                        <td>{{ item['price'] }} KES</td>
+                        <td>{{ item['total'] }} KES</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('routes.remove_from_cart', item_id=item['id']) }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-right">
+                <h4>Total: {{ total }} KES</h4>
+                <a href="{{ url_for('routes.checkout') }}" class="btn btn-primary">Proceed to Checkout</a>
+            </div>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
     </div>
-    <a href="{{ url_for('routes.checkout') }}" class="btn btn-success my-4">Proceed to Checkout</a>
 </div>
 {% endblock %}

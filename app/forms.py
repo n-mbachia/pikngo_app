@@ -1,7 +1,7 @@
 # my_flask_app/app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, HiddenField, StringField, PasswordField, SubmitField, TextAreaField, FloatField, FileField, ValidationError
+from wtforms import IntegerField, HiddenField, StringField, BooleanField, PasswordField, SubmitField, TextAreaField, FloatField, FileField, ValidationError
 from wtforms.validators import DataRequired, NumberRange, Email, Length, ValidationError, EqualTo
 from flask_wtf.file import FileField, FileAllowed, FileSize
 from app.models import User
@@ -47,3 +47,28 @@ class AddToCartForm(FlaskForm):
     item_id = HiddenField('Item ID', validators=[DataRequired()])
     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)])
     submit = SubmitField('Add to Cart')
+    
+# For for shop user registratio
+class ShopUserRegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different username.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different email address.')
+        
+# create for fror shop user login
+class ShopUserLoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Login')

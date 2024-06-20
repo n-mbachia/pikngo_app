@@ -6,8 +6,10 @@ from werkzeug.utils import secure_filename
 from datetime import timedelta
 import os
 from app import db
-from app.models import User, Content, ShopItem
-from app.forms import ContentForm, AdminSignupForm, AdminLoginForm, ShopItemForm, AddToCartForm
+from app.models import User, Content, ShopItem, ShopUser
+from app.forms import ContentForm, AdminSignupForm, AdminLoginForm, ShopItemForm, AddToCartForm, ShopUserRegistrationForm, ShopUserLoginForm
+from flask_login import login_user, logout_user, current_user, login_required
+from app.decorators import login_required_admin, login_required_shop
 
 # Create a Blueprint object for routes
 bp = Blueprint('routes', __name__)
@@ -35,7 +37,7 @@ def register():
 
 # Route for admin login
 @bp.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
+def admin_login():  
     form = AdminLoginForm
     if request.method == 'POST':
         username = request.form['username']
@@ -56,8 +58,68 @@ def admin_login():
 
     return render_template('admin/login.html')
 
+# Route for shop sign in
+@bp.route('/login_shop', methods=['GET', 'POST'])
+def login_shop():
+    if current_user.is_authenticated and isinstance(current_user._get_current_object(), ShopUser):
+        return redirect(url_for('routes.shop'))
+    form = ShopUserLoginForm()
+    
+    if form.validate_on_submit():
+        user = ShopUser.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('routes.login_shop'))
+        login_user(user, remember=form.remember_me.data)
+        
+        next_page = request.args.get('next')
+        return redirect(next_page) if next_page else redirect(url_for('routes.shop'))
+    
+    return render_template('login_shop.html', form=form)
+
+# Route for shop user registration
+@bp.route('/register_shop', methods=['GET', 'POST'])
+def register_shop():
+    if current_user.is_authenticated:
+        return redirect(url_for('routes.shop'))
+    
+    form = ShopUserRegistrationForm()
+    if form.validate_on_submit():
+        username=form.username.data 
+        email=form.email.data
+        password=form.password.data
+        
+        # Check is username already exists
+        existing_user = ShopUser.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different username!')
+            return redirect(url_for('routes.register_shop'))
+        
+        # Check if eail already exits
+        existing_email = ShopUser.query.filter_by(email=email).first()
+        if existing_email:
+            flash('Email already exists. Please choose a different email.')
+            return redirect(url_for('routes.register_shop'))
+        
+        # Create new shop user
+        new_user = ShopUser(username=username, email=email, password_hash=generate_password_hash(password))
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!', 'success')
+        return redirect(url_for('routes.login_shop'))
+    
+    return render_template('register_shop.html', form=form)
+
+# Route for shop logout
+@bp.route('/logout_shop')
+def logout_shop():
+    logout_user()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('routes.index'))
+
 # Route for admin dashboard
 @bp.route('/admin/dashboard', methods=['GET', 'POST'])
+@login_required_admin
 def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('routes.admin_login'))
@@ -249,6 +311,7 @@ def delete_shop_item(item_id):
 
 # Route to display shop to users
 @bp.route('/shop')
+@login_required_shop
 def shop():
     items= ShopItem.query.all()
     form = AddToCartForm()

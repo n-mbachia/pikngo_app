@@ -8,9 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Pik&Go{% endblock %}</title>
     <!-- Bootstrap CSS -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap" rel="stylesheet">    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap" rel="stylesheet">    
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
@@ -35,7 +35,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('routes.earlier_posts') }}">Blog</a>
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('routes.shop') }}">Shop</a>
                 </li>
             </ul>
