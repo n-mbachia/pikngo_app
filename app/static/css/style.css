@@ -66,6 +66,29 @@ body {
     color: #007bff; /* Change color of navigation links on hover */
 }
 
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.password-container input[type="password"], .password-container input[type="text"] {
+    margin-right: 5px;
+}
+
+.field-icon {
+    position: -webkit-sticky;
+    right: 10px;
+    cursor: pointer;
+}
+
+/* Adjust icon styles */
+.field-icon i {
+    font-size: 16px;
+    line-height: 1;
+    color: #555; /* Adjust color as needed */
+    transition: color 0.3 ease-in-out;
+    margin-bottom: 20px;
+}
 
 /* Additional styling for the list items */
 .list-unstyled {

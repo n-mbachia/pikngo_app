@@ -8,7 +8,7 @@ import os
 from app import db
 from app.models import User, Content, ShopItem, ShopUser
 from app.forms import ContentForm, AdminSignupForm, AdminLoginForm, ShopItemForm, AddToCartForm, ShopUserRegistrationForm, ShopUserLoginForm
-from flask_login import login_user, logout_user, current_user, login_required
+from flask_login import login_user, logout_user, current_user
 from app.decorators import login_required_admin, login_required_shop
 
 # Create a Blueprint object for routes
@@ -38,31 +38,23 @@ def register():
 # Route for admin login
 @bp.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
-    if current_user.is_authenticated and current_user.is_superuser:
+    if current_user.is_authenticated and isinstance(current_user._get_current_object(), User):
         return redirect(url_for('routes.admin_dashboard'))
-     
+    
     form = AdminLoginForm()
- 
+    
     if form.validate_on_submit():
-        username = form.username.data
-        password = form.passpword.data
-        remember_me = form.remember_me.data
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('routes.admin_login'))
         
-        user = User.query.filter_by(username=username).first()
+        login_user(user, remember=form.remember_me.data)
         
-        if user is None or not user.check_password_hash(password):
-            flash('Invalid username or password')
-            return redirect(url_for('routes,admin_login'))
-        
-        login_user(user, remember=remember_me)
-        if remember_me: 
-            session.permanent = True
-            current_app.permanent_session_lifetime = timedelta(days=90)
-            
         next_page = request.args.get('next')
         return redirect(next_page) if next_page else redirect(url_for('routes.admin_dashboard'))
     
-    return render_template('admin_login.html', title='Admin Login', form=form)
+    return render_template('admin_login.html', form=form)
 
 # Route for shop sign in
 @bp.route('/login_shop', methods=['GET', 'POST'])
