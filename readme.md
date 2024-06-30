@@ -17,17 +17,20 @@ my_flask_app/
 │   │   ├── post.html
 │   │   ├── earlier_posts.html
 │   │   └── edit_content.html
-│   └── static/
-│       ├── css/
-│       │   └── style.css
-│       └── uploads/
-│
-├── config.py
-├── run.py
-├── .flaskenv
-└── migrations/
-    ├── alembic.ini
-    ├── env.py
-    ├── README
-    ├── script.py.mako
-    └── versions/
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   ├── fonts/
+│   │   │   ├── BerkshireSwash-Regular.woff
+│   │   │   └── BerkshireSwash-Regular.woff2
+│   │   ├── images/
+│   │   │   ├── pik_n_go_logo.png
+│   │   │   └── mn_footer.jpg
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── models.py
+│   ├── forms.py
+│   ├── templates/
+│   ├── static/
+│   ├── config.py
+│   └── run.py

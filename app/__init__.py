@@ -18,6 +18,7 @@ migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'routes.login_shop'
+login_manager.login_view = 'routes.admin_login'
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -25,8 +26,10 @@ def load_user(user_id):
     print(f"Loading user with ID {user_id} from path {request.path}")   
     if 'shop' in request.path:
         return ShopUser.query.get(int(user_id))
-    else:
+    elif 'admin' in request.path:
         return User.query.get(int(user_id))
+    else:
+        return None
 
 # Register Blueprints
 from app.routes import bp as routes_bp

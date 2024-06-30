@@ -26,6 +26,7 @@ class AdminSignupForm(FlaskForm):
 class AdminLoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
 class ContentForm(FlaskForm):
@@ -35,20 +36,15 @@ class ContentForm(FlaskForm):
     author = StringField('Author', validators=[DataRequired(), Length(min=1, max=100)])
     submit = SubmitField('Submit')
 
-# createforms for adding and editing shop items
+# create form for adding and editing shop items
 class ShopItemForm(FlaskForm):
     name = StringField('Item name', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     price = FloatField('Price', validators=[DataRequired()])
     image = FileField('Image', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif']), FileSize(max_size=2 * 1024 * 1024)])
     submit = SubmitField('Upload Shop Item')
-    
-class AddToCartForm(FlaskForm):
-    item_id = HiddenField('Item ID', validators=[DataRequired()])
-    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)])
-    submit = SubmitField('Add to Cart')
-    
-# For for shop user registratio
+
+# Form for shop user registration
 class ShopUserRegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -66,9 +62,16 @@ class ShopUserRegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
         
-# create for fror shop user login
+# create form for shop user login
 class ShopUserLoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+# Create form for adding items to the cart
+class AddToCartForm(FlaskForm):
+    # item_id = HiddenField('Item ID', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)])
+    submit = SubmitField('Add to Cart')
+    

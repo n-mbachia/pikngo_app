@@ -1,7 +1,6 @@
-<!-- cart.html -->
-{% extends 'base.html' %}
+<!-- my_flask_app/app/tmplates/cart.html -->
 
-{% block title %}Cart{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <div class="container">
@@ -17,41 +16,27 @@
             </div>
         {% endif %}
     {% endwith %}
-    <div class="row">
-        {% if cart %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart %}
-                    <tr>
-                        <td>{{ item['name'] }}</td>
-                        <td>{{ item['quantity'] }}</td>
-                        <td>{{ item['price'] }} KES</td>
-                        <td>{{ item['total'] }} KES</td>
-                        <td>
-                            <form method="POST" action="{{ url_for('routes.remove_from_cart', item_id=item['id']) }}">
-                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <div class="text-right">
-                <h4>Total: {{ total }} KES</h4>
-                <a href="{{ url_for('routes.checkout') }}" class="btn btn-primary">Proceed to Checkout</a>
-            </div>
-        {% else %}
-            <p>Your cart is empty.</p>
-        {% endif %}
-    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50%;">Item</th>
+                <th style="width: 20%;">Quantity</th>
+                <th style="width: 30%;">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+                <tr>
+                    <td style="width: 50%">{{ item['item']['name'] }}</td>
+                    <td style="width:20%">{{ item['quantity'] }}</td>
+                    <td style="width: 30%;">KES {{ item['item']['price'] * item['quantity'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total Lines: {{ total_quantity }}</p>
+    <p>Total Before Discount: KES {{ total_cost }}</p>
+    <a href="{{ url_for('routes.checkout') }}" class="btn btn-primary">Checkout</a>
 </div>
 {% endblock %}

@@ -16,6 +16,6 @@ def login_required_admin(f):
     @wraps(f)
     def decorated_function(*args, **kwags):
         if not current_user.is_authenticated:
-            return redirect(url_for('route.login', next=request.url))
+            return redirect(url_for('routes.admin_login', next=request.url))
         return f(*args, **kwags)
     return decorated_function

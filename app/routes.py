@@ -37,26 +37,32 @@ def register():
 
 # Route for admin login
 @bp.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():  
-    form = AdminLoginForm
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        remember_me = request.form.get('remember_me')
+def admin_login():
+    if current_user.is_authenticated and current_user.is_superuser:
+        return redirect(url_for('routes.admin_dashboard'))
+     
+    form = AdminLoginForm()
+ 
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.passpword.data
+        remember_me = form.remember_me.data
+        
         user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            session['admin_logged_in'] = True
-            flash('Logged in successfully', 'success')
-
-            if remember_me:
-                session.permanent = True
-                current_app.permanent_session_lifetime = timedelta(days=90)
-
-            return redirect(url_for('routes.admin_dashboard'))
-        else:
-            flash('Invalid username or password. Please try again.', 'danger')
-
-    return render_template('admin/login.html')
+        
+        if user is None or not user.check_password_hash(password):
+            flash('Invalid username or password')
+            return redirect(url_for('routes,admin_login'))
+        
+        login_user(user, remember=remember_me)
+        if remember_me: 
+            session.permanent = True
+            current_app.permanent_session_lifetime = timedelta(days=90)
+            
+        next_page = request.args.get('next')
+        return redirect(next_page) if next_page else redirect(url_for('routes.admin_dashboard'))
+    
+    return render_template('admin_login.html', title='Admin Login', form=form)
 
 # Route for shop sign in
 @bp.route('/login_shop', methods=['GET', 'POST'])
@@ -109,13 +115,6 @@ def register_shop():
         return redirect(url_for('routes.login_shop'))
     
     return render_template('register_shop.html', form=form)
-
-# Route for shop logout
-@bp.route('/logout_shop')
-def logout_shop():
-    logout_user()
-    flash('You have been logged out.', 'success')
-    return redirect(url_for('routes.index'))
 
 # Route for admin dashboard
 @bp.route('/admin/dashboard', methods=['GET', 'POST'])
@@ -315,20 +314,15 @@ def delete_shop_item(item_id):
 def shop():
     items= ShopItem.query.all()
     form = AddToCartForm()
+    print("Form fields:", form.quantity)
     return render_template('shop.html', items=items, form=form)
 
-# Route to cart
-@bp.route('/cart')
-def cart():
-    cart_items = session.get('cart', [])
-    return render_template('cart.html', cart_items=cart_items)
-
 # Roue for add items to cart
-@bp.route('/add_to_cart', methods=['GET', 'POST'])
-def add_to_cart():
+@bp.route('/add_to_cart/<int:item_id>', methods=['GET', 'POST'])
+@login_required_shop
+def add_to_cart(item_id):
     form = AddToCartForm()
     if form.validate_on_submit():
-        item_id = form.item_id.data
         quantity = form.quantity.data
         item = ShopItem.query.get(item_id)
     
@@ -341,12 +335,23 @@ def add_to_cart():
             'quantity': quantity
         }
         
-        flash(f"Added {quantity} of {item.name} to cart!", 'success')
+        cart = session.get('cart', [])
+        cart.append(cart_item)
+        session['cart'] = cart
         
-        # return the cart item as Json response
+        flash(f"Added {quantity} of {item.name} to cart!", 'success')
         return redirect(url_for('routes.shop'))
-
+    
+    flash('Error adding to cart', 'danger')
     return redirect(url_for('routes.shop'))
+
+# Route to cart
+@bp.route('/cart')
+def cart():
+    cart_items = session.get('cart', [])
+    total_quantity = sum(item['quantity'] for item in cart_items)
+    total_cost = sum(item['item']['price'] * item['quantity'] for item in cart_items)
+    return render_template('cart.html', cart_items=cart_items, total_quantity=total_quantity, total_cost=total_cost)
 
 # Route to checkout
 @bp.route('/checkout', methods=['GET', 'POST'])
@@ -357,8 +362,9 @@ def checkout():
         session.pop('cart', None)
         return redirect(url_for('routes.shop'))
     cart_items = session.get('cart', [])
-    total = sum(item.price for item in cart_items)
-    return render_template('checkout.html', cart_items=cart_items, total=total)
+    total_quantity = sum(item['quantity'] for item in cart_items)
+    total_cost = sum(item['item']['price'] * item['quantity'] for item in cart_items)
+    return render_template('checkout.html', cart_items=cart_items, total_quantity=total_quantity, total_cost=total_cost)
 
 # Route for PDF menu download
 @bp.route('/menu')
@@ -385,3 +391,10 @@ def post(post_id):
 def earlier_posts():
     posts = Content.query.order_by(Content.created_at.desc()).all()
     return render_template('earlier_posts.html', posts=posts)
+
+# Route to log out
+@bp.route('/logout')
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('routes.index'))
