@@ -7,12 +7,15 @@ from flask_login import UserMixin
 
 
 # Define User model
-class User(UserMixin, db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     is_superuser = db.Column(db.Boolean, default=False)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
         
 # Define Content model
 class Content(db.Model):

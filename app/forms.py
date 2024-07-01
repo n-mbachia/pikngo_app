@@ -24,7 +24,7 @@ class AdminSignupForm(FlaskForm):
             raise ValidationError('Email is already registered.')
     
 class AdminLoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Email()])
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=30)])
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
